@@ -18,6 +18,5 @@ Below are few listed:
 - [gargs](https://github.com/brentp/gargs)
 - [anew](https://github.com/tomnomnom/anew)
 - [qsreplace](https://github.com/tomnomnom/qsreplace)
-- [gau](https://github.com/lc/gau)
-- [Gxss](https://github.com/KathanP19/Gxss)
-- [gargs](https://github.com/brentp/gargs)
+- [KingOfBugBountyTips](https://github.com/OfJAAH/KingOfBugBountyTips)
+- [awesome-oneliner-bugbounty](https://github.com/dwisiswant0/awesome-oneliner-bugbounty)
