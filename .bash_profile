@@ -34,7 +34,7 @@ echo '
 
 
 '
-cat ip | httpx -o live
+cat host | httpx -o live
 sleep '10'
 echo Total no. of live domain:
 cat live | wc
