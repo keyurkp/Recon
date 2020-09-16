@@ -74,4 +74,8 @@ echo '
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Find Interseting URL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '
 httpx -ports 80,443,8009,8080,8081,8090,8180,8443 -l live -timeout 5 -threads 200 --follow-redirects -silent | gargs -p 3 'gospider -m 5 --blacklist pdf -t 2 -c 300 -d 5 -a -s {}' | anew stepOne
+sleep '50'
+cat live | anew | xargs -I@ jaeles scan -c 10 -s ~/jaeles-signatures/ -u @
+sleep '50'
+python3 ~/tool/EyeWitness/Python/EyeWitness.py -f live --web
 }
