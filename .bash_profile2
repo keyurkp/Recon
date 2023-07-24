@@ -1,0 +1,75 @@
+recon(){
+
+subfinder -d $1 >> domains.txt ; assetfinder -subs-only $1 >> domains.txt ; amass enum -d $1 >> domains.txt ;
+curl -s "http://web.archive.org/cdx/search/cdx?url=*.$1/*&output=text&fl=original&collapse=urlkey" | sed -e 's_https*://__' -e "s/\/.*//" | sort -u >> domains.txt
+curl -s "https://jldc.me/anubis/subdomains/$1" | grep -Po "((http|https):\/\/)?(([\w.-]*)\.([\w]*)\.([A-z]))\w+" | sort -u >> domains.txt
+curl -s "https://crt.sh/?q=%25.$1&output=json" | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u >> domains.txt
+puredns -r dnsresolve.txt bruteforce ~/Wordlist/SecLists/Discovery/DNS/n0kovo_subdomains.txt $1 >> domains.txt
+
+echo '
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Subdomain Scan Completed~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
+ 
+sort domains.txt | uniq > host.txt
+echo Total no. of domain:
+cat host.txt | wc
+
+naabu -l host.txt -o port.txt
+
+cat port.txt host.txt > port_host.txt
+sort port_host.txt | uniq > main.txt
+
+echo '
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Starting HTTPX~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
+
+cat main.txt | httpx -o live.txt
+echo Total no. of live domain:
+cat live.txt | wc
+
+cat main.txt | httpx -status-code -tech-detect -title -o sc_td_t.txt
+
+cat main.txt | httpx -web-server -method -websocket -ip -o ws_m_ws.txt
+
+
+echo '
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Starting waybackurls & Gf-Patterns~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
+
+cat live.txt | waybackurls | sort -u >> waybackdata.txt 
+cat waybackdata.txt | gf ssrf | tee -a ssrf.txt
+cat waybackdata.txt | gf redirect | tee -a redirect.txt
+cat waybackdata.txt | gf debug_logic | tee -a debug_logic.txt
+cat waybackdata.txt | gf idor | tee -a idor.txt
+cat waybackdata.txt | gf img-traversal | tee -a img-traversal.txt
+cat waybackdata.txt | gf interestingsubs | tee -a interestingsubs.txt
+cat waybackdata.txt | gf lfi | tee -a lfi.txt
+cat waybackdata.txt | gf rce | tee -a rce.txt
+cat waybackdata.txt | gf sqli | tee -a sqli.txt
+cat waybackdata.txt | gf ssti | tee -a ssti.txt
+cat waybackdata.txt | gf xss | tee -a xss.txt
+sleep '10'
+
+cat live.txt | gau --o gau_result.txt
+
+dirsearch -l live.txt -o dirsearch.txt
+
+python3 ~/Tools/sub404/sub404.py -f main.txt -o sub404.txt
+
+cat live.txt | nuclei -as -o nuclei_as.txt
+cat live.txt | nuclei -t technologies -o nuclei_technologies.txt
+cat live.txt | nuclei -es info,low -o nuclei.txt
+
+echo '
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~XssReflected Scan~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+'
+
+cat xss.txt | Gxss -p XssReflected > XssReflected
+
+sleep '10'
+
+cat live.txt | katana -f qurl | nuclei -t ~/nuclei-templates/fuzzing -o nuclei_katana_fuzz.txt
+
+}
