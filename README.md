@@ -2,7 +2,7 @@
 
 This profile have multiple 1 liner command for automating recon process and saving all files in directory. 
 
-This .bash_profile have use multiple tools in use. 
+This .bash_profile have multiple tools in use. 
 Below are few listed:
 - [Subfinder](https://github.com/projectdiscovery/subfinder)
 - [Amass](https://github.com/OWASP/Amass)
